@@ -1,0 +1,5 @@
+edr: './ie_0_100.edr'
+tpr: './md_0_100.tpr'
+xtc: './md_0_100.xtc'
+ndx: './index.ndx'
+verbose: False
