@@ -1,2 +1,2 @@
 # pygmxta
-python wrapper of gromax MD trajectory analysis module
+gromax protein-ligand MD trajectory analysis tools
