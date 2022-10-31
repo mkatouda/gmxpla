@@ -78,6 +78,10 @@ def get_parser():
         help = "yaml style input file, overwriting argument values"
     )
     parser.add_argument(
+        '-e', '--edr', type=str,
+        help = "Gromacs energy file (edr file)"
+    )
+    parser.add_argument(
         '-t', '--tpr', type=str,
         help = "Gromacs topology file (tpr or gro file)"
     )
