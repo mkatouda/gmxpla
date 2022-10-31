@@ -3,31 +3,35 @@
 """
 # gmxpla
 
-python wrapper of gromax MD trajectory analysis tools
+gromax protein-ligand MD trajectory analysis tools 
 
-## Requirements
+## Licence
 
-* python: 3.7 or later
-* pyyaml
-* gromacs
-* pandas
-* matplotlib
+This package is distributed under the MIT License.
 
-## Install
+## Required softwares
+
+1. python: 3.7 or later
+2. pyyaml (https://pyyaml.org/)
+3. matplotlib (https://matplotlib.org/)
+4. gromacs  (https://www.gromacs.org/
+
+## Installation
+
+- Install gromacs
+See install guide: https://manual.gromacs.org/current/install-guide/index.html
 
 - Install from github
 pip install git+https://github.com/mkatouda/pygmxtx.git
 
 - Local install
 git clone https://github.com/mkatouda/pygmxtx.git
-cd placingmd
+cd pygmxtx
 pip install .
 
 """
 
-#import sys
 import os
-#import shutil
 import re
 import argparse
 import subprocess
@@ -67,7 +71,7 @@ def get_parser():
 
     parser = argparse.ArgumentParser(
         formatter_class=customHelpFormatter,
-        description="python wrapper of gromax MD trajectory analysis tools"
+        description="gromax protein-ligand MD trajectory analysis tools"
     )
     parser.add_argument(
         '-i', '--inp', type=str,
@@ -75,15 +79,19 @@ def get_parser():
     )
     parser.add_argument(
         '-t', '--tpr', type=str,
-        help = "Gromacs topology path (tpr or gro file)"
+        help = "Gromacs topology file (tpr or gro file)"
     )
     parser.add_argument(
         '-x', '--xtc', type=str,
-        help = "Gromacs trajectory path (xtc file)"
+        help = "Gromacs trajectory file (xtc file)"
     )
     parser.add_argument(
         '-n', '--ndx', type=str,
-        help = "Gromacs index path (ndx file)"
+        help = "Gromacs index file (ndx file)"
+    )
+    parser.add_argument(
+        '-oc', '--outcsv', type=str, default='docking_score.csv',
+        help = "docking score output (csv file)"
     )
     parser.add_argument(
         '-v', '--verbose', action='store_true',
@@ -231,7 +239,7 @@ def gmx_energy_intr(edr_path, debug=False):
 
     return xvg2csvpng(xvg_sum_path)
 
-def gmxpla_prolig_run(edr_path, tpr_path, xtc_path, ndx_path, score_csv_path='docking_score.csv', debug=False):
+def gmxpla_prolig_run(edr_path, tpr_path, xtc_path, ndx_path, score_csv_path, debug=False):
 
     score_ie = gmx_energy_intr(edr_path, debug=debug)
 
@@ -244,7 +252,7 @@ def gmxpla_prolig_run(edr_path, tpr_path, xtc_path, ndx_path, score_csv_path='do
     xvg_nowat_fit_rmsf_path = os.path.splitext(os.path.basename(xtc_nowat_fit_path))[0] + '_rmsf.xvg'
     selection = 'LIG_Heavy\n'
     score_rmsf = gmx_rmsf(tpr_path, xtc_nowat_fit_path, ndx_path, xvg_nowat_fit_rmsf_path, selection, debug=debug)
-    
+
     with open(score_csv_path, mode='w') as fout:
         fout.write('IE_score,RMSD_score,RMSF_score\n'.format(score_ie, score_rms, score_rmsf))
         fout.write('{},{},{}\n'.format(score_ie, score_rms, score_rmsf))
@@ -254,8 +262,9 @@ def gmxpla_main(conf):
     tpr_path = conf['tpr']
     xtc_path = conf['xtc']
     ndx_path = conf['ndx']
+    score_csv_path = conf['outcsv']
     debug = conf['verbose']
-    gmxpla_prolig_run(edr_path, tpr_path, xtc_path, ndx_path, debug=debug)
+    gmxpla_prolig_run(edr_path, tpr_path, xtc_path, ndx_path, score_csv_path, debug=debug)
 
 def main():
     args = get_parser()
