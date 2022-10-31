@@ -39,11 +39,12 @@ pip install .
 ## Command usage
 
 ```
-usage: gmxpla [-h] [-i INP] [-t TPR] [-x XTC] [-n NDX] [-oc OUTCSV] [-v]
+usage: gmxpla [-h] [-i INP] [-e EDR] [-t TPR] [-x XTC] [-n NDX] [-oc OUTCSV] [-v]
 
 optional arguments:
   -h, --help            show this help message and exit
   -i INP, --inp INP     yaml style input file, overwriting argument values (default: None)
+  -e EDR, --edr EDR     Gromacs energy file (edr file) (default: None)
   -t TPR, --tpr TPR     Gromacs topology file (tpr or gro file) (default: None)
   -x XTC, --xtc XTC     Gromacs trajectory file (xtc file) (default: None)
   -n NDX, --ndx NDX     Gromacs index file (ndx file) (default: None)
