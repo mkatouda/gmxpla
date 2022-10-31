@@ -3,7 +3,7 @@
 """
 # gmxpla
 
-gromax protein-ligand MD trajectory analysis tools 
+Gromax protein-ligand MD trajectory analysis tools
 
 ## Licence
 
@@ -14,7 +14,7 @@ This package is distributed under the MIT License.
 1. python: 3.7 or later
 2. pyyaml (https://pyyaml.org/)
 3. matplotlib (https://matplotlib.org/)
-4. gromacs  (https://www.gromacs.org/
+4. gromacs  (https://www.gromacs.org/)
 
 ## Installation
 
@@ -22,11 +22,11 @@ This package is distributed under the MIT License.
 See install guide: https://manual.gromacs.org/current/install-guide/index.html
 
 - Install from github
-pip install git+https://github.com/mkatouda/pygmxtx.git
+pip install git+https://github.com/mkatouda/gmxpla.git
 
 - Local install
-git clone https://github.com/mkatouda/pygmxtx.git
-cd pygmxtx
+git clone https://github.com/mkatouda/gmxpla.git
+cd gmxpla
 pip install .
 
 """
