@@ -1,6 +1,7 @@
 # gmxpla
 
-Gromax protein-ligand MD trajectory analysis tools to obtain csv and png file summary of protein-ligand interaction energy, ligand RMSD, and ligand RMSF
+Gromax protein-ligand MD trajectory analysis tools to obtain csv and png file summary of 
+protein-ligand interaction energy, ligand RMSD, and ligand RMSF.
 
 ## Licence
 
@@ -24,14 +25,14 @@ See install guide: https://manual.gromacs.org/current/install-guide/index.html
 ### Install from github
 
 ```
-pip install git+https://github.com/mkatouda/pygmxtx.git
+pip install git+https://github.com/mkatouda/gmxpla.git
 ```
 
 ### Local install
 
 ```
-git clone https://github.com/mkatouda/pygmxtx.git
-cd pygmxtx
+git clone https://github.com/mkatouda/gmxpla.git
+cd gmxpla
 pip install .
 ```
 
@@ -54,7 +55,7 @@ optional arguments:
 ## Exmaples of command line usage
 
 ```
-gmxpla -t prod.tpr -x prod.xtc -n index.ndx -oc prod_docking_score.csv
+gmxpla -e prod.edr -t prod.tpr -x prod.xtc -n index.ndx -oc prod_docking_score.csv
 ```
 
 ## Exmaples of yaml input usage
