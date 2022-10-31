@@ -7,6 +7,11 @@ protein-ligand interaction energy, ligand RMSD, and ligand RMSF.
 
 This package is distributed under the MIT License.
 
+## Tutorial
+
+You can try tutorial of meekovina to know how to install and run:  
+https://colab.research.google.com/github/mkatouda/gmxpla/blob/main/gmxpla_tutorial_jp.ipynb
+
 ## Required softwares
 
 1. python: 3.7 or later
