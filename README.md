@@ -19,6 +19,9 @@ https://colab.research.google.com/github/mkatouda/gmxpla/blob/main/gmxpla_tutori
 3. matplotlib (https://matplotlib.org/)
 4. gromacs (https://www.gromacs.org/)
 
+## Optional softwares
+5. oddt (https://github.com/oddt/oddt)
+
 ## Installation
 
 ### Install gromacs
@@ -44,7 +47,9 @@ pip install .
 ## Command usage
 
 ```
-usage: gmxpla [-h] [-i INP] [-e EDR] [-t TPR] [-x XTC] [-n NDX] [-oc OUTCSV] [-v]
+usage: gmxpla [-h] [-i INP] [-e EDR] [-t TPR] [-x XTC] [-n NDX] [-oc OUTCSV] [--ifpcos] [-v]
+
+gromax protein-ligand MD trajectory analysis tools
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -55,13 +60,14 @@ optional arguments:
   -n NDX, --ndx NDX     Gromacs index file (ndx file) (default: None)
   -oc OUTCSV, --outcsv OUTCSV
                         docking score output (csv file) (default: docking_score.csv)
+  --ifpcos              Whether to calc IFPcos score (default: False)
   -v, --verbose         Verbose output. (default: False)
 ```
 
 ## Exmaples of command line usage
 
 ```
-gmxpla -e prod.edr -t prod.tpr -x prod.xtc -n index.ndx -oc prod_docking_score.csv
+gmxpla -e prod.edr -t prod.tpr -x prod.xtc -n index.ndx -oc prod_docking_score.csv --ifcpcos
 ```
 
 ## Exmaples of yaml input usage
@@ -74,6 +80,7 @@ tpr: './prod.tpr'
 xtc: './prod.xtc'
 ndx: './index.ndx'
 outcsv: './prod_docking_score.csv'
+ifpcos: True
 verbose: False
 ```
 

@@ -14,7 +14,10 @@ This package is distributed under the MIT License.
 1. python: 3.7 or later
 2. pyyaml (https://pyyaml.org/)
 3. matplotlib (https://matplotlib.org/)
-4. gromacs  (https://www.gromacs.org/)
+4. gromacs (https://www.gromacs.org/)
+
+## Optional softwares
+5. oddt (https://github.com/oddt/oddt)
 
 ## Installation
 
@@ -96,6 +99,10 @@ def get_parser():
     parser.add_argument(
         '-oc', '--outcsv', type=str, default='docking_score.csv',
         help = "docking score output (csv file)"
+    )
+    parser.add_argument(
+        '--ifpcos', action='store_true',
+        help = "Whether to calc IFPcos score"
     )
     parser.add_argument(
         '-v', '--verbose', action='store_true',
@@ -226,6 +233,16 @@ def gmx_trjconv_prolig(tpr_path, xtc_path, ndx_path, debug=False):
     cmd2 = [gmxbin, 'trjconv', '-s', tpr_path, '-f', xtc_in_path, '-n', ndx_path, '-o', gro_out_path, '-dump', '0']
     run_twocmd_pype(cmd1, cmd2, debug=debug)
 
+    pdb_out_path = os.path.splitext(os.path.basename(xtc_path))[0] + '_nowat_fit_protein.pdb'
+    cmd1 = ['echo', 'Protein\n']
+    cmd2 = [gmxbin, 'trjconv', '-s', tpr_path, '-f', xtc_in_path, '-n', ndx_path, '-o', pdb_out_path]
+    run_twocmd_pype(cmd1, cmd2, debug=debug)
+
+    pdb_out_path = os.path.splitext(os.path.basename(xtc_path))[0] + '_nowat_fit_ligand.pdb'
+    cmd1 = ['echo', 'LIG\n']
+    cmd2 = [gmxbin, 'trjconv', '-s', tpr_path, '-f', xtc_in_path, '-n', ndx_path, '-o', pdb_out_path]
+    run_twocmd_pype(cmd1, cmd2, debug=debug)
+
     return xtc_out_path
 
 def gmx_energy_intr(edr_path, debug=False):
@@ -243,7 +260,41 @@ def gmx_energy_intr(edr_path, debug=False):
 
     return xvg2csvpng(xvg_sum_path)
 
-def gmxpla_prolig_run(edr_path, tpr_path, xtc_path, ndx_path, score_csv_path, debug=False):
+def gmx_ifpcos(protein_pdb_path, ligand_pdb_path, outbasename):
+    from oddt import toolkit
+    from oddt import fingerprints
+    import numpy as np
+
+    protein = []
+    for pro in toolkit.readfile('pdb', protein_pdb_path):
+        pro.protein = True
+        protein.append(pro)
+
+    ligand = list(toolkit.readfile('pdb', ligand_pdb_path))
+
+    IFP0 = fingerprints.SimpleInteractionFingerprint(ligand[0], protein[0])
+    IFPCos = []
+    for i in range(0, len(protein)):
+        IFP1 = fingerprints.SimpleInteractionFingerprint(ligand[i], protein[i])
+        cos_sim = - (np.dot(IFP0, IFP1) / (np.linalg.norm(IFP0) * np.linalg.norm(IFP1)))
+        IFPCos.append(cos_sim)
+
+    IFPCos = np.array(IFPCos)
+    score_IFPCos = np.mean(IFPCos)
+
+    csvfile = outbasename + '.csv'
+    np.savetxt(csvfile, IFPCos)
+
+    time = np.array([float(i) for i in range(len(IFPCos))])
+    xlabel = 'Time (ps)'
+    ylabel = 'IFP_cos'
+    title = 'IFP_cos'
+    pngfile = outbasename + '.png'
+    plot2d(time, IFPCos, xlabel, ylabel, title, pngfile)
+
+    return score_IFPCos
+
+def gmxpla_prolig_run(edr_path, tpr_path, xtc_path, ndx_path, score_csv_path, ifpcos=False, debug=False):
 
     score_ie = gmx_energy_intr(edr_path, debug=debug)
 
@@ -257,9 +308,18 @@ def gmxpla_prolig_run(edr_path, tpr_path, xtc_path, ndx_path, score_csv_path, de
     selection = 'LIG_Heavy\n'
     score_rmsf = gmx_rmsf(tpr_path, xtc_nowat_fit_path, ndx_path, xvg_nowat_fit_rmsf_path, selection, debug=debug)
 
-    with open(score_csv_path, mode='w') as fout:
-        fout.write('IE_score,RMSD_score,RMSF_score\n'.format(score_ie, score_rms, score_rmsf))
-        fout.write('{},{},{}\n'.format(score_ie, score_rms, score_rmsf))
+    if ifpcos:
+        outbasename_ifpcos = os.path.splitext(os.path.basename(xtc_nowat_fit_path))[0] + '_ifpcos'
+        protein_pdb_path = os.path.splitext(os.path.basename(xtc_path))[0] + '_nowat_fit_protein.pdb'
+        ligand_pdb_path = os.path.splitext(os.path.basename(xtc_path))[0] + '_nowat_fit_ligand.pdb'
+        score_ifpcos = gmx_ifpcos(protein_pdb_path, ligand_pdb_path, outbasename_ifpcos)
+        with open(score_csv_path, mode='w') as fout:
+            fout.write('IE_score,RMSD_score,RMSF_score,IFPcos_score\n')
+            fout.write('{},{},{},{}\n'.format(score_ie, score_rms, score_rmsf, score_ifpcos))
+    else:
+        with open(score_csv_path, mode='w') as fout:
+            fout.write('IE_score,RMSD_score,RMSF_score\n')
+            fout.write('{},{},{}\n'.format(score_ie, score_rms, score_rmsf))
 
 def gmxpla_main(conf):
     edr_path = conf['edr']
@@ -267,8 +327,9 @@ def gmxpla_main(conf):
     xtc_path = conf['xtc']
     ndx_path = conf['ndx']
     score_csv_path = conf['outcsv']
+    ifpcos = conf['ifpcos']
     debug = conf['verbose']
-    gmxpla_prolig_run(edr_path, tpr_path, xtc_path, ndx_path, score_csv_path, debug=debug)
+    gmxpla_prolig_run(edr_path, tpr_path, xtc_path, ndx_path, score_csv_path, ifpcos=ifpcos, debug=debug)
 
 def main():
     args = get_parser()

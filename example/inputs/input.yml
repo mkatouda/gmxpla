@@ -3,4 +3,5 @@ tpr: './prod.tpr'
 xtc: './prod.xtc'
 ndx: './index.ndx'
 outcsv: './prod_docking_score.csv'
+ifpcos: True
 verbose: False
